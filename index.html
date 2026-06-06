@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echoes of the Big Bang — NASA Missions & The Cosmic Microwave Background</title>
+<style>
+  :root {
+    --bg: #0a0a14;
+    --surface: #141428;
+    --surface2: #1e1e3a;
+    --gold: #d4a843;
+    --gold-light: #f0d078;
+    --text: #d0d0e0;
+    --text-muted: #9090b0;
+    --accent: #5b7fdb;
+    --accent2: #38b2ac;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* === STARS BACKGROUND === */
+  #stars-canvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
+  }
+
+  /* === NAV === */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(10,10,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  nav .logo {
+    font-size: 1.1rem; font-weight: 700; color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  nav ul { display: flex; list-style: none; gap: 0.3rem; }
+  nav a {
+    color: var(--text-muted); text-decoration: none;
+    padding: 0.5rem 0.75rem; border-radius: 6px;
+    font-size: 0.85rem; transition: color 0.2s, background 0.2s;
+  }
+  nav a:hover, nav a.active { color: var(--gold); background: rgba(255,255,255,0.05); }
+
+  /* === HERO === */
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 6rem 2rem 4rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 300; letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+  }
+  .hero .subtitle {
+    font-size: 1.15rem; color: var(--text-muted);
+    max-width: 600px; margin-bottom: 2.5rem;
+  }
+  .hero .scroll-hint {
+    position: absolute; bottom: 2rem;
+    color: var(--text-muted); font-size: 0.8rem;
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  /* === SECTIONS === */
+  section {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto; padding: 5rem 2rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  section h2 {
+    font-size: 2rem; font-weight: 300; color: var(--gold);
+    margin-bottom: 1.5rem; letter-spacing: 1px;
+  }
+  section h3 {
+    font-size: 1.3rem; font-weight: 500; color: var(--accent2);
+    margin: 2rem 0 0.75rem;
+  }
+  section p { margin-bottom: 1rem; color: var(--text); }
+  section .lead {
+    font-size: 1.15rem; color: var(--text-muted);
+    margin-bottom: 2rem; font-style: italic;
+  }
+
+  /* === MISSION CARDS === */
+  .mission-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 2rem; margin: 1.5rem 0;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .mission-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(212,168,67,0.3);
+  }
+  .mission-card .mission-header {
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;
+  }
+  .mission-card .mission-badge {
+    background: var(--accent); color: #fff;
+    padding: 0.25rem 0.75rem; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .mission-card h3 { margin: 0; flex: 1; color: var(--gold-light); }
+
+  /* === FEATURE GRID === */
+  .grid-2 {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin: 2rem 0;
+  }
+  .stat-box {
+    background: var(--surface2);
+    border-radius: 10px; padding: 1.5rem; text-align: center;
+  }
+  .stat-box .stat-num {
+    font-size: 2.2rem; font-weight: 300; color: var(--gold);
+    display: block;
+  }
+  .stat-box .stat-label { color: var(--text-muted); font-size: 0.85rem; }
+
+  /* === TIMELINE === */
+  .timeline {
+    position: relative; padding-left: 2rem; margin: 2rem 0;
+    border-left: 2px solid rgba(212,168,67,0.3);
+  }
+  .timeline-item {
+    position: relative; margin-bottom: 2rem; padding-left: 1.5rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute; left: -2.45rem; top: 0.4rem;
+    width: 10px; height: 10px; background: var(--gold);
+    border-radius: 50%;
+  }
+  .timeline-item .year {
+    font-weight: 700; color: var(--gold); font-size: 0.9rem;
+  }
+
+  /* === FUTURE PROBES === */
+  .future-probe {
+    background: linear-gradient(135deg, var(--surface2), var(--surface));
+    border-radius: 12px; padding: 2rem; margin: 1.5rem 0;
+    border-left: 3px solid var(--accent2);
+  }
+  .future-probe h3 { color: var(--accent2); margin-top: 0; }
+
+  /* === FOOTER === */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center; padding: 3rem 2rem;
+    color: var(--text-muted); font-size: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    max-width: 900px; margin: 0 auto;
+  }
+  footer a { color: var(--accent2); text-decoration: none; }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 700px) {
+    nav ul { display: none; }
+    section { padding: 3rem 1.2rem; }
+    .hero h1 { font-size: 1.8rem; }
+    section h2 { font-size: 1.5rem; }
+  }
+
+  @media print {
+    #stars-canvas, nav, .scroll-hint { display: none; }
+    body { background: #fff; color: #000; }
+    section { break-inside: avoid; border: none; padding: 1.5rem 0; }
+    section h2 { color: #000; }
+    .mission-card, .future-probe, .stat-box {
+      background: #f5f5f5; border: 1px solid #ddd; break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+
+<nav>
+  <span class="logo">✦ COSMOS 20B</span>
+  <ul>
+    <li><a href="#home">Home</a></li>
+    <li><a href="#cmb">What is CMB?</a></li>
+    <li><a href="#missions">Missions</a></li>
+    <li><a href="#discoveries">Discoveries</a></li>
+    <li><a href="#future">Future</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero" id="home">
+  <h1>Echoes of the<br>Big Bang</h1>
+  <p class="subtitle">
+    How NASA's space missions revolutionized our understanding
+    of the cosmic microwave background — and what the next generation
+    of probes might reveal about the earliest moments of the universe.
+  </p>
+  <div class="scroll-hint">▼ Scroll to explore</div>
+</header>
+
+<!-- ==================== WHAT IS CMB ==================== -->
+<section id="cmb">
+  <h2>What is the Cosmic Microwave Background?</h2>
+  <p class="lead">The oldest light in the universe — a faint glow from just 380,000 years after the Big Bang.</p>
+
+  <p>
+    In the first few hundred thousand years after the Big Bang, the universe was a hot, dense
+    plasma of protons, electrons, and photons — too hot for neutral atoms to form. Photons
+    constantly scattered off free electrons, keeping the universe opaque. Then, roughly 380,000
+    years after the Big Bang, the universe cooled enough for protons and electrons to combine
+    into neutral hydrogen. This event, known as <strong>recombination</strong>, freed the photons
+    to travel unimpeded through space.
+  </p>
+
+  <div class="stat-box" style="margin: 2rem 0;">
+    <span class="stat-num">13.8 billion</span>
+    <span class="stat-label">years ago — when the CMB light was first released</span>
+  </div>
+
+  <p>
+    Today, those photons reach us as a nearly uniform microwave glow at just 2.725 Kelvin —
+    barely 3 degrees above absolute zero. This radiation fills every direction of the sky,
+    and embedded within its tiny temperature fluctuations (±0.0002 K) is a treasure trove of
+    information about the composition, geometry, and fate of the universe.
+  </p>
+
+  <div class="grid-2">
+    <div class="stat-box">
+      <span class="stat-num">2.725 K</span>
+      <span class="stat-label">Average CMB temperature</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">~380,000 yrs</span>
+      <span class="stat-label">Age of universe at recombination</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">~1 mm</span>
+      <span class="stat-label">Peak wavelength (microwave)</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">1 part in 100,000</span>
+      <span class="stat-label">Size of temperature fluctuations</span>
+    </div>
+  </div>
+
+  <p>
+    The CMB is arguably the most important observational pillar of modern cosmology. It
+    provides a direct snapshot of the infant universe — a cosmic Rosetta Stone that has
+    transformed cosmology from philosophical speculation into a precision science.
+  </p>
+</section>
+
+<!-- ==================== MISSIONS ==================== -->
+<section id="missions">
+  <h2>NASA Missions That Mapped the CMB</h2>
+  <p class="lead">Three landmark space missions — COBE, WMAP, and Planck — progressively unveiled the secrets of the primordial universe.</p>
+
+  <!-- COBE -->
+  <div class="mission-card">
+    <div class="mission-header">
+      <h3>COBE</h3>
+      <span class="mission-badge">1989–1993</span>
+    </div>
+    <p>
+      The <strong>Cosmic Background Explorer</strong> (COBE) was NASA's first dedicated CMB
+      satellite, launched in November 1989. Its mission was to precisely measure the CMB
+      spectrum and search for the long-theorized anisotropies — tiny temperature variations
+      across the sky that would later seed all cosmic structure.
+    </p>
+    <p>
+      In 1990, COBE's FIRAS instrument delivered one of the most perfect blackbody spectra
+      ever measured, confirming the CMB's thermal origin beyond any doubt. Then, in 1992,
+      the DMR instrument detected the first anisotropies — temperature ripples of just
+      ~30 microkelvins. This discovery earned John Mather and George Smoot the
+      <strong>2006 Nobel Prize in Physics</strong>.
+    </p>
+    <p>
+      COBE's findings proved that the early universe contained the seeds of all later
+      structure — galaxies, clusters, and voids — and firmly established Big Bang cosmology
+      as the correct description of our cosmic origins.
+    </p>
+  </div>
+
+  <!-- WMAP -->
+  <div class="mission-card">
+    <div class="mission-header">
+      <h3>WMAP</h3>
+      <span class="mission-badge">2001–2010</span>
+    </div>
+    <p>
+      The <strong>Wilkinson Microwave Anisotropy Probe</strong> (WMAP), named after
+      cosmologist David Wilkinson, launched in June 2001 and took CMB measurements to
+      an entirely new level of precision. Positioned at the L2 Lagrange point — a million
+      miles from Earth — WMAP scanned the full sky with 45 times the sensitivity and
+      33 times the angular resolution of COBE.
+    </p>
+    <p>
+      WMAP's data transformed cosmology. It pinned down the age of the universe to
+      <strong>13.77 ± 0.06 billion years</strong>, determined that the universe is
+      spatially <strong>flat</strong> (Ω<sub>k</sub> ≈ 0), and revealed its composition:
+      <strong>4.6% ordinary matter, 24% dark matter, and 71.4% dark energy</strong>.
+      These results defined the now-standard ΛCDM cosmological model.
+    </p>
+    <p>
+      The mission also detected the polarization of the CMB, opening a new window into
+      the physics of reionization — the era when the first stars lit up the cosmos.
+    </p>
+  </div>
+
+  <!-- Planck -->
+  <div class="mission-card">
+    <div class="mission-header">
+      <h3>Planck</h3>
+      <span class="mission-badge" style="background:var(--accent2);">2009–2013</span>
+    </div>
+    <p>
+      While <strong>Planck</strong> was an ESA (European Space Agency) mission, NASA made
+      essential contributions — providing the cryogenic cooler for the High Frequency
+      Instrument, detector technology, and data processing expertise through JPL. Launched
+      in 2009 to L2, Planck mapped the CMB with the highest resolution and sensitivity to
+      date across nine frequency bands.
+    </p>
+    <p>
+      Planck's all-sky map is the sharpest image of the early universe ever produced. It
+      slightly refined the universe's age to <strong>13.80 billion years</strong> and
+      tightened constraints on dark matter (26.8%) and dark energy (68.3%). Most
+      intriguingly, it revealed subtle anomalies — including a "cold spot" and hemispheric
+      asymmetry — that hint at physics beyond the simplest inflationary models.
+    </p>
+  </div>
+
+  <!-- TIMELINE -->
+  <h3>CMB Mission Timeline</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <span class="year">1965</span>
+      Penzias &amp; Wilson accidentally discover the CMB using a ground-based horn antenna at Bell Labs (Nobel Prize, 1978).
+    </div>
+    <div class="timeline-item">
+      <span class="year">1989</span>
+      NASA launches COBE — the first satellite dedicated to measuring the CMB.
+    </div>
+    <div class="timeline-item">
+      <span class="year">1992</span>
+      COBE detects the primordial temperature anisotropies — the "wrinkles in time."
+    </div>
+    <div class="timeline-item">
+      <span class="year">2001</span>
+      WMAP launches to L2, beginning a decade of high-precision CMB mapping.
+    </div>
+    <div class="timeline-item">
+      <span class="year">2006</span>
+      Mather &amp; Smoot awarded the Nobel Prize for COBE's discoveries.
+    </div>
+    <div class="timeline-item">
+      <span class="year">2009</span>
+      Planck launches, pushing CMB resolution and sensitivity to new limits.
+    </div>
+    <div class="timeline-item">
+      <span class="year">2013</span>
+      Planck releases its first cosmology results, refining the standard model.
+    </div>
+    <div class="timeline-item">
+      <span class="year">2018</span>
+      Planck final data release — the most precise CMB map ever produced.
+    </div>
+  </div>
+</section>
+
+<!-- ==================== OTHER NASA MISSIONS ==================== -->
+<section id="other-missions">
+  <h2>Beyond the CMB: NASA's Broader Cosmology Missions</h2>
+  <p class="lead">While CMB satellites probe the universe's infancy, other NASA missions explore how the cosmos evolved across cosmic time.</p>
+
+  <div class="mission-card">
+    <div class="mission-header">
+      <h3>Hubble Space Telescope</h3>
+      <span class="mission-badge">1990–Present</span>
+    </div>
+    <p>
+      Hubble's deep-field observations revealed galaxies as they were just 400 million years
+      after the Big Bang, constraining the timeline of cosmic dawn. Its precise measurements
+      of Cepheid variables and Type Ia supernovae led to the Nobel Prize-winning discovery
+      of <strong>accelerating cosmic expansion</strong> — the smoking gun for dark energy.
+    </p>
+  </div>
+
+  <div class="mission-card">
+    <div class="mission-header">
+      <h3>James Webb Space Telescope</h3>
+      <span class="mission-badge">2021–Present</span>
+    </div>
+    <p>
+      JWST peers deeper into the infrared than ever before, finding galaxies at redshifts
+      z > 13 — within 300 million years of the Big Bang. These discoveries challenge
+      models of early galaxy formation and complement CMB studies by connecting the
+      universe's initial conditions to the first luminous structures.
+    </p>
+  </div>
+
+  <div class="mission-card">
+    <div class="mission-header">
+      <h3>SPHEREx</h3>
+      <span class="mission-badge" style="background:var(--accent2);">Upcoming 2025</span>
+    </div>
+    <p>
+      NASA's SPHEREx (Spectro-Photometer for the History of the Universe, Epoch of
+      Reionization and Ices Explorer) will perform an all-sky near-infrared spectral survey.
+      Over its two-year mission, it will map the large-scale distribution of galaxies to
+      study <strong>primordial non-Gaussianity</strong> — a signature of inflation that
+      complements CMB measurements.
+    </p>
+  </div>
+</section>
+
+<!-- ==================== DISCOVERIES ==================== -->
+<section id="discoveries">
+  <h2>What the CMB Taught Us</h2>
+  <p class="lead">The CMB is the single richest source of cosmological information ever observed. Here's what decades of measurements have revealed.</p>
+
+  <h3>1. The Universe Had a Hot, Dense Beginning</h3>
+  <p>
+    The near-perfect blackbody spectrum of the CMB confirms that the universe began in a
+    hot, dense state. No alternative model has reproduced this observation as naturally as
+    the Big Bang framework.
+  </p>
+
+  <h3>2. The Universe is Flat</h3>
+  <p>
+    The angular size of the CMB's temperature fluctuations — particularly the first acoustic
+    peak at ~1° — reveals that the universe's spatial geometry is <strong>flat</strong>
+    (Ω<sub>total</sub> ≈ 1.00 ± 0.01). This implies a critical density universe, consistent
+    with inflation's prediction.
+  </p>
+
+  <h3>3. The Cosmic Composition</h3>
+  <p>
+    The heights and positions of the CMB's acoustic peaks encode the densities of baryons,
+    dark matter, and dark energy. Together, these measurements paint a picture of a universe
+    dominated by two mysterious components — dark matter and dark energy — with ordinary
+    matter comprising less than 5% of the total.
+  </p>
+
+  <h3>4. Evidence for Inflation</h3>
+  <p>
+    The CMB's nearly scale-invariant spectrum of primordial fluctuations, its Gaussian
+    statistics, and its super-horizon correlations all point to <strong>cosmic inflation</strong>
+    — a brief period of exponential expansion in the first 10<sup>−32</sup> seconds. The
+    search for B-mode polarization (gravitational waves from inflation) remains one of the
+    most important goals in observational cosmology.
+  </p>
+
+  <h3>5. The Hubble Tension</h3>
+  <p>
+    Planck's CMB data, when extrapolated forward using ΛCDM, predicts a Hubble constant of
+    ~67.4 km/s/Mpc. But local measurements using supernovae and Cepheids give ~73 km/s/Mpc.
+    This <strong>~5σ discrepancy</strong> — the "Hubble tension" — may hint at new physics
+    beyond the standard model: perhaps an early dark energy component, extra relativistic
+    species, or modifications to general relativity.
+  </p>
+
+  <div class="stat-box" style="margin: 2rem 0;">
+    <span class="stat-num">~5σ</span>
+    <span class="stat-label">Statistical significance of the Hubble tension — a potential crack in ΛCDM</span>
+  </div>
+</section>
+
+<!-- ==================== FUTURE ==================== -->
+<section id="future">
+  <h2>Future Probes of the Early Universe</h2>
+  <p class="lead">
+    The next frontier of CMB science goes beyond temperature — targeting polarization,
+    spectral distortions, and the cosmic neutrino background. Here's how future missions
+    should look.
+  </p>
+
+  <div class="future-probe">
+    <h3>CMB-S4: The Ultimate Ground-Based Survey</h3>
+    <p>
+      <strong>CMB Stage-4</strong> is a next-generation experiment deploying hundreds of
+      thousands of superconducting detectors across telescopes in Chile and the South Pole.
+      Its primary goal: detect or constrain <strong>primordial B-modes</strong> — the
+      swirling polarization pattern that would be the smoking gun for inflationary
+      gravitational waves. CMB-S4 will also map the millimeter sky with unprecedented depth,
+      probing neutrino masses, dark energy evolution, and the physics of reionization.
+    </p>
+    <p>
+      <em>Why it matters:</em> If B-modes are detected at r ≥ 0.001, we will have directly
+      measured quantum gravitational effects from the universe's first moments — a Nobel
+      Prize-level discovery.
+    </p>
+  </div>
+
+  <div class="future-probe">
+    <h3>LiteBIRD: Space-Based B-Mode Hunt</h3>
+    <p>
+      <strong>LiteBIRD</strong> (Lite satellite for the study of B-mode polarization and
+      Inflation from cosmic background Radiation Detection) is a JAXA-led mission with NASA
+      participation, planned for launch around 2032. Operating from L2 with 15 frequency
+      bands (34–448 GHz), it will perform an all-sky search for B-modes at large angular
+      scales, targeting a sensitivity of r &lt; 0.001.
+    </p>
+    <p>
+      <em>Why space?</em> A space platform eliminates atmospheric noise and allows access to
+      the full sky — essential for separating the primordial B-mode signal from foreground
+      contamination.
+    </p>
+  </div>
+
+  <div class="future-probe">
+    <h3>PIXIE: Spectral Distortions Explorer</h3>
+    <p>
+      <strong>PIXIE</strong> (Primordial Inflation Explorer) is a proposed NASA mission that
+      would measure the CMB spectrum with 1,000 times the sensitivity of COBE's FIRAS. Its
+      primary targets are <strong>μ-type and y-type spectral distortions</strong> — subtle
+      deviations from a perfect blackbody caused by energy injection in the early universe
+      (e.g., from decaying dark matter or primordial black holes).
+    </p>
+    <p>
+      <em>Why it's revolutionary:</em> While CMB temperature and polarization map the universe
+      at z ≈ 1100, spectral distortions probe eras as early as z ≈ 10<sup>6</sup>–10<sup>7</sup>
+      — reaching far deeper into cosmic history than any other observable.
+    </p>
+  </div>
+
+  <div class="future-probe">
+    <h3>What an Ideal Future Probe Looks Like</h3>
+    <p>
+      Drawing from these concepts, an ideal next-generation NASA cosmology probe should:
+    </p>
+    <ol style="margin: 1rem 0 1rem 1.5rem; line-height: 2;">
+      <li>
+        <strong>Cover the full sky</strong> from space at L2, ensuring no atmospheric
+        contamination and access to the largest angular scales where primordial B-modes
+        and anomalies reside.
+      </li>
+      <li>
+        <strong>Span 30–600 GHz</strong> with thousands of polarization-sensitive
+        detectors to separate CMB signal from galactic foregrounds (dust, synchrotron).
+      </li>
+      <li>
+        <strong>Measure both polarization and spectrum</strong> — combining B-mode
+        sensitivity (r ~ 10<sup>−4</sup>) with spectral distortion sensitivity
+        (μ ~ 10<sup>−9</sup>) in a single platform.
+      </li>
+      <li>
+        <strong>Cross-correlate with galaxy surveys</strong> (Euclid, Roman Space Telescope)
+        to break degeneracies between cosmological parameters and test for deviations
+        from ΛCDM across cosmic time.
+      </li>
+      <li>
+        <strong>Operate for 5+ years</strong> to beat down systematic errors and achieve
+        the photon statistics needed to probe the faintest primordial signals.
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ==================== REFERENCES ==================== -->
+<section id="references">
+  <h2>References &amp; Further Reading</h2>
+  <ul style="line-height: 2.2; color: var(--text-muted);">
+    <li>Mather, J. C., et al. "Measurement of the Cosmic Microwave Background Spectrum by the COBE FIRAS Instrument." <em>ApJ</em>, 420, 439 (1994).</li>
+    <li>Smoot, G. F., et al. "Structure in the COBE DMR First-Year Maps." <em>ApJ</em>, 396, L1 (1992).</li>
+    <li>Bennett, C. L., et al. "Nine-Year Wilkinson Microwave Anisotropy Probe (WMAP) Observations: Final Maps and Results." <em>ApJS</em>, 208, 20 (2013).</li>
+    <li>Planck Collaboration. "Planck 2018 results. VI. Cosmological parameters." <em>A&amp;A</em>, 641, A6 (2020).</li>
+    <li>Abazajian, K., et al. "CMB-S4 Science Case, Reference Design, and Project Plan." arXiv:1907.04473 (2019).</li>
+    <li>LiteBIRD Collaboration. "Probing Cosmic Inflation with the LiteBIRD Satellite." <em>PTEP</em>, 2022, 6 (2022).</li>
+    <li>Kogut, A., et al. "The Primordial Inflation Explorer (PIXIE): A Nulling Polarimeter for Cosmic Microwave Background Observations." <em>JCAP</em>, 07, 025 (2011).</li>
+    <li>Riess, A. G., et al. "A Comprehensive Measurement of the Local Value of the Hubble Constant." <em>ApJ</em>, 934, L7 (2022).</li>
+    <li>NASA SPHEREx Mission: <a href="https://spherex.caltech.edu/" target="_blank">spherex.caltech.edu</a></li>
+    <li>NASA CMB Science: <a href="https://science.nasa.gov/astrophysics/focus-areas/what-is-the-cosmic-microwave-background/" target="_blank">science.nasa.gov</a></li>
+  </ul>
+</section>
+
+<footer>
+  <p>
+    Physics 20B: Cosmology — Final Project &bull; Spring 2026<br>
+    Built with HTML, CSS &amp; JavaScript &bull; Original content © 2026
+  </p>
+</footer>
+
+<script>
+// --- Starfield background ---
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+let w, h;
+
+function resize() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', () => {
+  resize();
+  initStars();
+});
+
+function initStars() {
+  stars = [];
+  const count = Math.floor((w * h) / 1800);
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 1.4 + 0.3,
+      twinkle: Math.random() * Math.PI * 2,
+      speed: Math.random() * 0.02 + 0.005
+    });
+  }
+}
+initStars();
+
+function drawStars() {
+  ctx.clearRect(0, 0, w, h);
+  for (const s of stars) {
+    s.twinkle += s.speed;
+    const alpha = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(s.twinkle));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(220,220,255,${alpha})`;
+    ctx.fill();
+  }
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+// --- Active nav link on scroll ---
+const sections = document.querySelectorAll('section, header');
+const navLinks = document.querySelectorAll('nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) {
+      current = s.getAttribute('id') || 'home';
+    }
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+
+</body>
+</html>
